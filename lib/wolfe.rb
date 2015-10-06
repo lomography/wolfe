@@ -1,6 +1,7 @@
 require "yaml"
 
 require "wolfe/cleanup"
+require "wolfe/cli"
 require "wolfe/version"
 
 module Wolfe
