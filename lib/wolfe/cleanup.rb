@@ -1,4 +1,5 @@
-require "active_support/core_ext/numeric/time.rb"
+require "active_support"
+require "active_support/core_ext"
 require "fileutils"
 
 module Wolfe
@@ -6,27 +7,54 @@ module Wolfe
     attr_accessor :configuration
 
     def initialize(configuration)
-      self.configuration = configuration
+      @configuration = configuration
+      validate_configuration
     end
 
     def start
-      puts "should be starting now."
+      configuration.each do |name, config|
+        puts "-----------------------------------------------------"
+        puts "Cleaning up backups: #{name}"
+        puts "-----------------------------------------------------"
 
-      # self.configuration.each do |name, config|
-      #   puts "-----------------------------------------------------"
-      #   puts "Cleaning up backups: #{name}"
-      #   puts "-----------------------------------------------------"
-
-      #   cleanup( config )
-      # end
+        cleanup( config )
+      end
     end
 
     private
+
+      #
+      # validation
+      #
+
+      def validate_configuration
+        raise ArgumentError.new("Configuration must be hash.") unless configuration.is_a? Hash
+        configuration.each do |name, config|
+          raise ArgumentError.new("Configuration keys for #{name} missing.") unless configuration_keys.all? { |k| config.key?(k) }
+          raise ArgumentError.new("Invalid timespan argument for #{name}")unless config[:one_per_day_timespan] =~ timespan_regex
+          raise ArgumentError.new("Invalid timespan argument for #{name}") unless config[:one_per_month_timespan] =~ timespan_regex
+          raise ArgumentError.new("Path for #{name} does not exist.") unless Dir.exist?(config[:path])
+        end
+      end
+
+      def configuration_keys
+        [:path, :filename, :one_per_day_timespan, :one_per_month_timespan]
+      end
+
+      def timespan_regex
+        /^\d+\.(days?|weeks?|months?|years?)$/
+      end
+
+      #
+      # cleanup
+      #
 
       def cleanup( config )
         daily_date = Date.today - eval( config[:one_per_day_timespan] )
         monthly_date = Date.today - eval( config[:one_per_month_timespan] )
         first_relevant_date = Date.today - 5.years
+
+        puts "==> #{config[:path]}"
 
         if File.directory?(config[:path])
           clean_monthly( monthly_date, daily_date, config )

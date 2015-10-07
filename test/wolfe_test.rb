@@ -5,7 +5,9 @@ class WolfeTest < Minitest::Test
     refute_nil ::Wolfe::VERSION
   end
 
-  def test_it_does_something_useful
-    assert false
+  def test_run_cleanup_should_raise_argument_error_if_file_does_not_exist
+    assert_raises ArgumentError do
+      Wolfe.run_cleanup "/not/really/a/file"
+    end
   end
 end
