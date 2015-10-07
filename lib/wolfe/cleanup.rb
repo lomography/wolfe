@@ -31,14 +31,14 @@ module Wolfe
         raise ArgumentError.new("Configuration must be hash.") unless configuration.is_a? Hash
         configuration.each do |name, config|
           raise ArgumentError.new("Configuration keys for #{name} missing.") unless configuration_keys.all? { |k| config.key?(k) }
-          raise ArgumentError.new("Invalid timespan argument for #{name}")unless config[:one_per_day_timespan] =~ timespan_regex
-          raise ArgumentError.new("Invalid timespan argument for #{name}") unless config[:one_per_month_timespan] =~ timespan_regex
-          raise ArgumentError.new("Path for #{name} does not exist.") unless Dir.exist?(config[:path])
+          raise ArgumentError.new("Invalid timespan argument for #{name}")   unless config['one_per_day_timespan'] =~ timespan_regex
+          raise ArgumentError.new("Invalid timespan argument for #{name}")   unless config['one_per_month_timespan'] =~ timespan_regex
+          raise ArgumentError.new("Path for #{name} does not exist.")        unless Dir.exist?(config['path'])
         end
       end
 
       def configuration_keys
-        [:path, :filename, :one_per_day_timespan, :one_per_month_timespan]
+        ['path', 'filename', 'one_per_day_timespan', 'one_per_month_timespan']
       end
 
       def timespan_regex
@@ -50,29 +50,27 @@ module Wolfe
       #
 
       def cleanup( config )
-        daily_date = Date.today - eval( config[:one_per_day_timespan] )
-        monthly_date = Date.today - eval( config[:one_per_month_timespan] )
+        daily_date = Date.today - eval( config['one_per_day_timespan'] )
+        monthly_date = Date.today - eval( config['one_per_month_timespan'] )
         first_relevant_date = Date.today - 5.years
 
-        puts "==> #{config[:path]}"
-
-        if File.directory?(config[:path])
+        if File.directory?(config['path'])
           clean_monthly( monthly_date, daily_date, config )
           clean_yearly( first_relevant_date, monthly_date, config )
         else
-          puts "Path '#{config[:path]}' is not a directory."
+          puts "Path '#{config['path']}' is not a directory."
         end
       end
 
       def clean_monthly( monthly_date, daily_date, config )
         daily_date.downto( monthly_date ) do |date|
-          delete_but_keep_one_per_month( config[:path], config[:filename], date )
+          delete_but_keep_one_per_month( config['path'], config['filename'], date )
         end
       end
 
       def clean_yearly( first_relevant_date, monthly_date, config )
         monthly_date.downto( first_relevant_date ) do |date|
-          delete_but_keep_one_per_year( config[:path], config[:filename], date )
+          delete_but_keep_one_per_year( config['path'], config['filename'], date )
         end
       end
 

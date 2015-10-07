@@ -22,7 +22,7 @@ module Wolfe
 
     def test_configuration_must_include_all_keys
       assert_raises ArgumentError do
-        Cleanup.new(test_backup: { path: test_directory, one_per_day_timespan: "30.days", one_per_month_timespan: "1.year" })
+        Cleanup.new('test_backup' => { 'path' => test_directory, 'one_per_day_timespan' => "30.days", 'one_per_month_timespan' => "1.year" })
       end
     end
 
@@ -92,12 +92,12 @@ module Wolfe
 
       def configuration path, filename, day_timespan, month_timespan
         {
-          test_backup:
+          'test_backup' =>
             {
-              path: path,
-              filename: filename,
-              one_per_day_timespan: day_timespan,
-              one_per_month_timespan: month_timespan,
+              'path' => path,
+              'filename' => filename,
+              'one_per_day_timespan' => day_timespan,
+              'one_per_month_timespan' => month_timespan,
             }
         }
       end
