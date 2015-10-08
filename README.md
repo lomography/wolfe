@@ -1,39 +1,45 @@
 # Wolfe
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/wolfe`. To experiment with that code, run `bin/console` for an interactive prompt.
+Wolfe's purpose is to clean up database (and other) backups that encode year, month, day and hour in their filename. That's also what wolfe will look at when deciding if a file has to be removed or not. Wolfe can be configured to keep daily and monthly backups for a given timespan and will always keep one backup for every year.
 
-TODO: Delete this and the text above, and describe your gem
+Original code was written by @michaelem, tests and gemification by @srecnig. In case you're wondering, the name wolfe is a [reference](http://www.imdb.com/title/tt0110912/quotes?item=qt0447112).
 
 ## Installation
 
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'wolfe'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install wolfe
+Wolfe can be installed through the usual sources: add it to your application's ``Gemfile`` or install manually through ``gem install``.
 
 ## Usage
 
-TODO: Write usage instructions here
+Call wolfe from the command line and give a rule file as one single parameter.
 
-## Development
+```bash
+wolfe cleanup rules.yml
+```
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+Or call wolfe from within your project if you've added it to the Gemfile.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+```ruby
+Wolfe.run_cleanup "/path/to/rules.yml"
+```
+
+## Rules.yml
+
+The rule file contains the information on where backups are stored, how the date metadata is encoded in the filename and how many backups to keep per timespan.
+
+```yaml
+---
+backup_name:
+  path: /mnt/data/backups/database
+  filename: 'backup-database-%{year}-%{month}-%{day}-%{hour}.tar.gz'
+  one_per_day_timespan: 15.days
+  one_per_month_timespan: 1.year
+```
+
+To configure the timespans we rely on ``active support``'s [time extensions](http://guides.rubyonrails.org/active_support_core_extensions.html#time) to ``Numeric``, so something like ``1.month``, ``2.years``, etc. will work. No spaces or ruby code please.
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/wolfe. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](contributor-covenant.org) code of conduct.
-
+Bug reports and pull requests are welcome on GitHub at https://github.com/lomography/wolfe. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](contributor-covenant.org) code of conduct.
 
 ## License
 
