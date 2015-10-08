@@ -2,7 +2,7 @@
 
 Wolfe's purpose is to clean up database (and other) backups that encode year, month, day and hour in their filename. That's also what wolfe will look at when deciding if a file has to be removed or not. Wolfe can be configured to keep daily and monthly backups for a given timespan and will always keep one backup for every year.
 
-Original code was written by @michaelem, tests and gemification by @srecnig. In case you're wondering, the name wolfe is a [reference](http://www.imdb.com/title/tt0110912/quotes?item=qt0447112).
+Original code was written by [@michaelem](https://github.com/michaelem), tests and gemification by [@srecnig](https://github.com/srecnig). In case you're wondering, the name wolfe is a [reference](http://www.imdb.com/title/tt0110912/quotes?item=qt0447112).
 
 ## Installation
 
