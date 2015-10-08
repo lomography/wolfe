@@ -1,3 +1,5 @@
+[ ![Codeship Status for lomography/wolfe](https://codeship.com/projects/0ee7cea0-4fc3-0133-01bb-6a2063c5e118/status?branch=master)](https://codeship.com/projects/107389)
+
 # Wolfe
 
 Wolfe's purpose is to clean up database (and other) backups that encode year, month, day and hour in their filename. That's also what wolfe will look at when deciding if a file has to be removed or not. Wolfe can be configured to keep daily and monthly backups for a given timespan and will always keep one backup for every year.
