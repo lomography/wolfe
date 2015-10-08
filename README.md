@@ -37,6 +37,8 @@ backup_name:
 
 To configure the timespans we rely on ``active support``'s [time extensions](http://guides.rubyonrails.org/active_support_core_extensions.html#time) to ``Numeric``, so something like ``1.month``, ``2.years``, etc. will work. No spaces or ruby code please.
 
+Note: The file kept for a timespan is always the file of the last day of the timespan, e.g. the backup file kept for every year will always be the one of 31st, Dec.
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/lomography/wolfe. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](contributor-covenant.org) code of conduct.

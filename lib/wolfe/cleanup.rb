@@ -63,13 +63,13 @@ module Wolfe
       end
 
       def clean_monthly( monthly_date, daily_date, config )
-        daily_date.downto( monthly_date ) do |date|
+        monthly_date.upto( daily_date ) do |date|
           delete_but_keep_one_per_month( config['path'], config['filename'], date )
         end
       end
 
       def clean_yearly( first_relevant_date, monthly_date, config )
-        monthly_date.downto( first_relevant_date ) do |date|
+        first_relevant_date.upto( monthly_date ) do |date|
           delete_but_keep_one_per_year( config['path'], config['filename'], date )
         end
       end

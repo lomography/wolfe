@@ -45,7 +45,7 @@ module Wolfe
 
       if ( Date.today - 15.days ).month != Date.today.month
         assert_equal 6, Dir.entries(test_directory).count
-        assert File.exist?("#{test_directory}/#{backup_filename( ( Date.today - 15.days ) )}")
+        assert File.exist?("#{test_directory}/#{backup_filename( (Date.today - 15.days).end_of_month )}")
       else
         assert_equal 5, Dir.entries(test_directory).count
       end
@@ -64,8 +64,8 @@ module Wolfe
 
       assert_equal 5, Dir.entries(test_directory).count
       assert File.exist?("#{test_directory}/#{backup_filename(Date.today)}")
-      assert File.exist?("#{test_directory}/#{backup_filename(1.month.ago.beginning_of_month.to_date)}")
-      assert File.exist?("#{test_directory}/#{backup_filename(2.months.ago.beginning_of_month.to_date)}")
+      assert File.exist?("#{test_directory}/#{backup_filename(1.month.ago.end_of_month.to_date)}")
+      assert File.exist?("#{test_directory}/#{backup_filename(2.months.ago.end_of_month.to_date)}")
     end
 
     #
