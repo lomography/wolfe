@@ -9,8 +9,11 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Michael Emhofer", "Martin Sereinig"]
   spec.email         = ["dev@lomography.com"]
 
-  spec.summary       = %q{Cleans up (backup) files by date.}
-  spec.homepage      = "http://github.com/lomography"
+  spec.summary       = %q{Cleanup (backup) files by date.}
+  spec.description   = "Often backup files have year, month, date and hour encoded in their filename. " \
+                       "Wolfe uses this information to clean up such files and can be configured to " \
+                       "keep daily/monthly backups for a certain timespans. It will always keep one backup per year."
+  spec.homepage      = "http://github.com/lomography/wolfe"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
