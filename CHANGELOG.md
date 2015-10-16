@@ -1,3 +1,9 @@
+## 1.1.1 (2015-10-16)
+
+Changes:
+
+  - FIX: Copyright holder is Lomographische AG, not Martin Sereinig. Updated notice in License.
+
 ## 1.1.0 (2015-10-08)
 
 Changes:
