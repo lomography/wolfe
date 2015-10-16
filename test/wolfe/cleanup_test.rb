@@ -37,9 +37,7 @@ module Wolfe
     #
 
     def test_start_should_correctly_delete_daily_backups
-      Date.today.downto(15.days.ago.to_date) do |date|
-        FileUtils.touch "#{test_directory}/#{backup_filename(date)}"
-      end
+      create_test_files_downto 15.days.ago
       cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "3.days", "1.year"))
       cleanup.start
 
@@ -55,10 +53,8 @@ module Wolfe
       assert File.exist?("#{test_directory}/#{backup_filename(Date.today - 2.days)}")
     end
 
-    def test_start_correctly_delete_monthly_backups
-      Date.today.downto(6.months.ago.to_date) do |date|
-        FileUtils.touch "#{test_directory}/#{backup_filename(date)}"
-      end
+    def test_start_should_correctly_delete_monthly_backups
+      create_test_files_downto 6.months.ago
       cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "1.days", "3.months"))
       cleanup.start
 
@@ -81,6 +77,12 @@ module Wolfe
     end
 
     private
+
+      def create_test_files_downto datetime
+        Date.today.downto(datetime.to_date) do |date|
+          FileUtils.touch "#{test_directory}/#{backup_filename(date)}"
+        end
+      end
 
       def test_directory
         File.join( File.expand_path(File.dirname(__FILE__)), '..', 'tmp' )
