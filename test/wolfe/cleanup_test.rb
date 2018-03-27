@@ -1,4 +1,4 @@
-require 'test_helper'
+require_relative "../test_helper"
 
 module Wolfe
 
@@ -37,7 +37,7 @@ module Wolfe
     #
 
     def test_start_should_correctly_delete_daily_backups
-      create_test_files_downto 15.days.ago
+      create_not_empty_test_files_for_period(Date.today, 15.days.ago)
       cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "3.days", "1.year"))
       cleanup.start
 
@@ -54,14 +54,55 @@ module Wolfe
     end
 
     def test_start_should_correctly_delete_monthly_backups
-      create_test_files_downto 6.months.ago
-      cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "1.days", "3.months"))
+      create_not_empty_test_files_for_period(Date.today, 6.months.ago)
+      cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "1.days", "4.months"))
+      cleanup.start
+
+      assert_equal 6, Dir.entries(test_directory).count
+      assert File.exist?("#{test_directory}/#{backup_filename(Date.today)}")
+      assert File.exist?("#{test_directory}/#{backup_filename(1.month.ago.end_of_month.to_date)}")
+      assert File.exist?("#{test_directory}/#{backup_filename(2.months.ago.end_of_month.to_date)}")
+      assert File.exist?("#{test_directory}/#{backup_filename(3.months.ago.end_of_month.to_date)}")
+    end
+
+    def test_start_should_delete_everything_but_the_backups_from_the_last_three_days
+      create_not_empty_test_files_for_period(Date.today, 6.months.ago)
+      cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "3.days", "0.days"))
       cleanup.start
 
       assert_equal 5, Dir.entries(test_directory).count
       assert File.exist?("#{test_directory}/#{backup_filename(Date.today)}")
+      assert File.exist?("#{test_directory}/#{backup_filename(Date.today - 1.day)}")
+      assert File.exist?("#{test_directory}/#{backup_filename(Date.today - 2.days)}")
+    end
+
+    def test_start_should_not_delete_any_backup_within_this_month_if_last_backup_is_empty
+      create_not_empty_test_files_for_period(Date.today - 1.day, 6.months.ago)
+      create_empty_test_files_for_period(Date.today, Date.today - 1.day)
+
+      cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "1.days", "4.months"))
+      cleanup.start
+
+      assert_equal 32, Dir.entries(test_directory).count
+      assert File.exist?("#{test_directory}/#{backup_filename(Date.today)}")
       assert File.exist?("#{test_directory}/#{backup_filename(1.month.ago.end_of_month.to_date)}")
-      assert File.exist?("#{test_directory}/#{backup_filename(2.months.ago.end_of_month.to_date)}")
+      assert File.exist?("#{test_directory}/#{backup_filename(2.month.ago.end_of_month.to_date)}")
+      assert File.exist?("#{test_directory}/#{backup_filename(3.month.ago.end_of_month.to_date)}")
+      assert File.exist?("#{test_directory}/#{backup_filename(1.year.ago.end_of_year.to_date)}")
+    end
+
+    def test_start_should_correctly_delete_backups_if_last_backup_is_not_empty
+      create_not_empty_test_files_for_period(Date.today, 2.years.ago)
+
+      cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "3.days", "1.year"))
+      cleanup.start
+
+      assert_equal 17, Dir.entries(test_directory).count
+      assert File.exist?("#{test_directory}/#{backup_filename(Date.today)}")
+      assert File.exist?("#{test_directory}/#{backup_filename(Date.today - 1.day)}")
+      assert File.exist?("#{test_directory}/#{backup_filename(Date.today - 2.days)}")
+      assert File.exist?("#{test_directory}/#{backup_filename(11.months.ago.end_of_month.to_date)}")
+      assert File.exist?("#{test_directory}/#{backup_filename(2.years.ago.end_of_year.to_date)}")
     end
 
     #
@@ -78,8 +119,15 @@ module Wolfe
 
     private
 
-      def create_test_files_downto datetime
-        Date.today.downto(datetime.to_date) do |date|
+      def create_not_empty_test_files_for_period start_date, end_date
+        start_date.downto(end_date.to_date) do |date|
+          FileUtils.touch "#{test_directory}/#{backup_filename(date)}"
+          File.open("#{test_directory}/#{backup_filename(date)}", "w") { |file| file.write("not empty") }
+        end
+      end
+
+      def create_empty_test_files_for_period start_date, end_date
+        start_date.downto(end_date.to_date) do |date|
           FileUtils.touch "#{test_directory}/#{backup_filename(date)}"
         end
       end
