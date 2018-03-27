@@ -97,7 +97,7 @@ module Wolfe
                                      day: date.strftime('%d'),
                                     hour: '*' }
 
-        to_keep_or_not_to_keep?(keep_one, path, filename_day, filename_month: filename_month)
+        select_file_for_deletion(keep_one, path, filename_day, filename_month: filename_month)
       end
 
       def delete_yearly( path, filename, date, keep_one )
@@ -110,15 +110,15 @@ module Wolfe
                                      day: date.strftime('%d'),
                                     hour: '*' }
 
-        to_keep_or_not_to_keep?(keep_one, path, filename_day, filename_year: filename_year)
+        select_file_for_deletion(keep_one, path, filename_day, filename_year: filename_year)
       end
 
-      def to_keep_or_not_to_keep?(keep_one, path, filename_day, filename_month: nil, filename_year: nil)
+      def select_file_for_deletion(keep_one, path, filename_day, filename_month: nil, filename_year: nil)
         if keep_one
-          select_file_for_deletion( full_path( path, filename_month ), delete_path: full_path( path, filename_day ) ) if filename_month
-          select_file_for_deletion( full_path( path, filename_year ), delete_path: full_path( path, filename_day ) ) if filename_year
+          select_file( full_path( path, filename_month ), delete_path: full_path( path, filename_day ) ) if filename_month
+          select_file( full_path( path, filename_year ), delete_path: full_path( path, filename_day ) ) if filename_year
         else
-          select_file_for_deletion( delete_path: full_path( path, filename_day ) )
+          select_file( delete_path: full_path( path, filename_day ) )
         end
       end
 
@@ -126,7 +126,7 @@ module Wolfe
         File.expand_path(File.join(path, filename))
       end
 
-      def select_file_for_deletion(keep_path=nil, delete_path:)
+      def select_file(keep_path=nil, delete_path:)
         Dir.glob(delete_path).each do |f|
           keep_path ? delete_but_keep_one(f, keep_path) : delete_without_keeping_one(f, delete_path)
         end
@@ -134,17 +134,17 @@ module Wolfe
 
       def delete_but_keep_one(file, keep_path)
         if Dir.glob(keep_path).count > 1 && File.size(Dir.glob(keep_path).sort.last) > 0
-          delete_file(file)
+          delete(file)
         end
       end
 
       def delete_without_keeping_one(file, delete_path)
         if File.size(Dir.glob(delete_path).last) > 0
-          delete_file(file)
+          delete(file)
         end
       end
 
-      def delete_file(file)
+      def delete(file)
         puts "Delete: #{file}"
         FileUtils.rm(file)
       end
