@@ -52,21 +52,27 @@ module Wolfe
 
       def cleanup( config )
         daily_date = Date.today - eval( config['one_per_day_timespan'] )
-        monthly_date = Date.today - eval( config['one_per_month_timespan'] )
+        monthly_date = set_monthly_date(config['one_per_month_timespan'])
+        keep_one = !one_per_month_timespan_starts_with_zero?(config['one_per_month_timespan'])
 
         if File.directory?(config['path'])
-          keep_one = true
-
-          if monthly_date == Date.today
-            keep_one = false
-            monthly_date = @first_relevant_date
-          end
-
           clean_monthly( monthly_date, daily_date, config, keep_one )
-          clean_yearly( monthly_date, config, keep_one )
+          clean_yearly( monthly_date, config, keep_one ) if keep_one
         else
           puts "Path '#{config['path']}' is not a directory."
         end
+      end
+
+      def set_monthly_date(one_per_month_timespan)
+        if Date.today - eval(one_per_month_timespan) == Date.today
+          @first_relevant_date
+        else
+          Date.today - eval(one_per_month_timespan)
+        end
+      end
+
+      def one_per_month_timespan_starts_with_zero?(timespan)
+        timespan.first.to_i == 0 ? true : false
       end
 
       def clean_monthly( monthly_date, daily_date, config, keep_one )
