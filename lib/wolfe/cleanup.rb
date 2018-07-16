@@ -128,20 +128,18 @@ module Wolfe
 
       def select_file(keep_path=nil, delete_path:)
         Dir.glob(delete_path).each do |f|
-          keep_path ? delete_but_keep_one(f, keep_path) : delete_without_keeping_one(f, delete_path)
+          keep_path ? delete_but_keep_one(f, keep_path) : delete_without_keeping_one(f)
         end
       end
 
       def delete_but_keep_one(file, keep_path)
-        if Dir.glob(keep_path).count > 1 && File.size(Dir.glob(keep_path).sort.last) > 0
+        if Dir.glob(keep_path).count > 1
           delete(file)
         end
       end
 
-      def delete_without_keeping_one(file, delete_path)
-        if File.size(Dir.glob(delete_path).last) > 0
-          delete(file)
-        end
+      def delete_without_keeping_one(file)
+        delete(file)
       end
 
       def delete(file)
