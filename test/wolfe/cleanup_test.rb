@@ -37,7 +37,7 @@ module Wolfe
     #
 
     def test_start_should_correctly_delete_daily_backups
-      create_not_empty_test_files_for_period(Date.today, 15.days.ago)
+      create_not_empty_test_files_for_period(Date.today, 15.days.ago.to_date)
       cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "3.days", "1.year"))
       cleanup.start
 
@@ -54,7 +54,7 @@ module Wolfe
     end
 
     def test_start_should_correctly_delete_monthly_backups
-      create_not_empty_test_files_for_period(Date.today, 6.months.ago)
+      create_not_empty_test_files_for_period(Date.today, 6.months.ago.to_date)
       cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "1.days", "4.months"))
       cleanup.start
 
@@ -66,7 +66,7 @@ module Wolfe
     end
 
     def test_start_should_delete_everything_but_the_backups_from_the_last_three_days
-      create_not_empty_test_files_for_period(Date.today, 6.months.ago)
+      create_not_empty_test_files_for_period(Date.today, 6.months.ago.to_date)
       cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "3.days", "0.days"))
       cleanup.start
 
@@ -77,8 +77,8 @@ module Wolfe
     end
 
     def test_start_should_not_delete_any_backup_within_this_month_if_last_backup_is_empty
-      create_not_empty_test_files_for_period(Date.today - 1.day, 6.months.ago)
-      create_empty_test_files_for_period(Date.today, Date.today - 1.day)
+      create_not_empty_test_files_for_period(Date.today - 1.day, 6.months.ago.to_date)
+      create_empty_test_files_for_period(Date.today, Date.today)
 
       cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "1.days", "4.months"))
       cleanup.start
@@ -92,7 +92,7 @@ module Wolfe
     end
 
     def test_start_should_correctly_delete_backups_if_last_backup_is_not_empty
-      create_not_empty_test_files_for_period(Date.today, 2.years.ago)
+      create_not_empty_test_files_for_period(Date.today, 2.years.ago.to_date)
 
       cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "3.days", "1.year"))
       cleanup.start
@@ -120,14 +120,14 @@ module Wolfe
     private
 
       def create_not_empty_test_files_for_period start_date, end_date
-        start_date.downto(end_date.to_date) do |date|
+        start_date.downto(end_date) do |date|
           FileUtils.touch "#{test_directory}/#{backup_filename(date)}"
           File.open("#{test_directory}/#{backup_filename(date)}", "w") { |file| file.write("not empty") }
         end
       end
 
       def create_empty_test_files_for_period start_date, end_date
-        start_date.downto(end_date.to_date) do |date|
+        start_date.downto(end_date) do |date|
           FileUtils.touch "#{test_directory}/#{backup_filename(date)}"
         end
       end
