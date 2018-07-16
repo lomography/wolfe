@@ -83,12 +83,12 @@ module Wolfe
       cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "1.days", "4.months"))
       cleanup.start
 
-      assert_equal 32, Dir.entries(test_directory).count
+      assert_equal 7, Dir.entries(test_directory).count
       assert File.exist?("#{test_directory}/#{backup_filename(Date.today)}")
+      assert File.exist?("#{test_directory}/#{backup_filename(Date.today - 1.day)}")
       assert File.exist?("#{test_directory}/#{backup_filename(1.month.ago.end_of_month.to_date)}")
       assert File.exist?("#{test_directory}/#{backup_filename(2.month.ago.end_of_month.to_date)}")
       assert File.exist?("#{test_directory}/#{backup_filename(3.month.ago.end_of_month.to_date)}")
-      assert File.exist?("#{test_directory}/#{backup_filename(1.year.ago.end_of_year.to_date)}")
     end
 
     def test_start_should_correctly_delete_backups_if_last_backup_is_not_empty
