@@ -128,7 +128,11 @@ module Wolfe
 
       def select_file(keep_path=nil, delete_path:)
         Dir.glob(delete_path).each do |f|
-          keep_path ? delete_but_keep_one(f, keep_path) : delete_without_keeping_one(f)
+          month_path = month_path(f)
+
+          if File.size(Dir.glob(month_path).sort.last) > 0
+            keep_path ? delete_but_keep_one(f, keep_path) : delete_without_keeping_one(f)
+          end
         end
       end
 
@@ -145,6 +149,13 @@ module Wolfe
       def delete(file)
         puts "Delete: #{file}"
         FileUtils.rm(file)
+      end
+
+      def month_path(file)
+        file_splitted = file.split('-')
+        file_splitted[-2] = "*"
+        file_splitted[-1] = "*"
+        file_splitted.join('-')
       end
   end
 end
