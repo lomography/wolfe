@@ -77,21 +77,21 @@ module Wolfe
     end
 
     def test_start_should_not_delete_any_backup_within_this_month_if_last_backup_is_empty
-      create_not_empty_test_files_for_period("05.07.2018".to_date - 1.day, 6.months.ago.to_date)
-      create_empty_test_files_for_period("05.07.2018".to_date, "05.07.2018".to_date)
+      create_not_empty_test_files_for_period(Date.today - 1.day, 6.months.ago.to_date)
+      create_empty_test_files_for_period(Date.today, Date.today)
 
       cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "1.days", "4.months"))
       cleanup.start
 
-      assert_equal 10, Dir.entries(test_directory).count
-      assert File.exist?("#{test_directory}/#{backup_filename("5.07.2018".to_date)}")
-      assert File.exist?("#{test_directory}/#{backup_filename("5.07.2018".to_date - 1.day)}")
-      assert File.exist?("#{test_directory}/#{backup_filename("5.07.2018".to_date - 2.day)}")
-      assert File.exist?("#{test_directory}/#{backup_filename("5.07.2018".to_date - 3.day)}")
-      assert File.exist?("#{test_directory}/#{backup_filename("5.07.2018".to_date - 4.day)}")
-      assert File.exist?("#{test_directory}/#{backup_filename(1.month.ago.end_of_month.to_date)}")
-      assert File.exist?("#{test_directory}/#{backup_filename(2.month.ago.end_of_month.to_date)}")
-      assert File.exist?("#{test_directory}/#{backup_filename(3.month.ago.end_of_month.to_date)}")
+      assert_equal 13, Dir.entries(test_directory).count
+
+      Date.today.downto(Date.today.beginning_of_month) do |day|
+        assert File.exist?("#{test_directory}/#{backup_filename(day)}")
+      end
+
+      assert File.exist?("#{test_directory}/#{backup_filename((Date.today - 1.month).end_of_month)}")
+      assert File.exist?("#{test_directory}/#{backup_filename((Date.today - 2.month).end_of_month)}")
+      assert File.exist?("#{test_directory}/#{backup_filename((Date.today - 3.month).end_of_month)}")
     end
 
     def test_start_should_not_delete_any_backup_within_this_month_if_last_backup_is_empty_and_we_dont_keep_monthly_backups
