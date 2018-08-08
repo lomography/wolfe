@@ -95,17 +95,16 @@ module Wolfe
     end
 
     def test_start_should_not_delete_any_backup_within_this_month_if_last_backup_is_empty_and_we_dont_keep_monthly_backups
-      create_not_empty_test_files_for_period("02.07.2018".to_date - 1.day, 6.months.ago.to_date)
-      create_empty_test_files_for_period("02.07.2018".to_date, "02.07.2018".to_date)
+      create_not_empty_test_files_for_period("01.07.2018".to_date - 1.day, 6.months.ago.to_date)
+      create_empty_test_files_for_period("01.07.2018".to_date, "01.07.2018".to_date)
 
       cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "1.days", "0.months"))
       cleanup.start
 
-      assert_equal 34, Dir.entries(test_directory).count
-      assert File.exist?("#{test_directory}/#{backup_filename("2.07.2018".to_date)}")
-      assert File.exist?("#{test_directory}/#{backup_filename("2.07.2018".to_date - 1.day)}")
-      assert File.exist?("#{test_directory}/#{backup_filename("2.07.2018".to_date - 2.day)}")
-      assert File.exist?("#{test_directory}/#{backup_filename(1.month.ago.end_of_month.to_date)}")
+      assert_equal 4, Dir.entries(test_directory).count
+      assert File.exist?("#{test_directory}/#{backup_filename("1.07.2018".to_date)}")
+      assert File.exist?("#{test_directory}/#{backup_filename("1.07.2018".to_date - 1.day)}")
+      assert File.exist?("#{test_directory}/#{backup_filename(("1.07.2018".to_date - 1.month).end_of_month)}")
     end
 
     def test_start_should_correctly_delete_backups_if_last_backup_is_not_empty
