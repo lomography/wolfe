@@ -141,11 +141,7 @@ module Wolfe
       end
 
       def delete_without_keeping_one(file)
-        next_file = file.dup
-        date = date_from_file(file)
-        next_file[52..61] = date.next.to_s
-
-        if File.size(Dir.glob(next_file).last) > 0
+        if File.size(Dir.glob(next_file_path(file)).last) > 0
           delete(file)
         end
       end
@@ -165,6 +161,13 @@ module Wolfe
       def date_from_file(file)
         file_splitted = file.split('-')
         file_splitted[-4..-2].join('.').to_date
+      end
+
+      def next_file_path(file_path)
+        next_file = file_path.dup
+        date = date_from_file(file_path)
+        next_file[52..61] = date.next.to_s
+        next_file
       end
   end
 end
