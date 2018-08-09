@@ -83,8 +83,6 @@ module Wolfe
       cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "1.days", "4.months"))
       cleanup.start
 
-      assert_equal 13, Dir.entries(test_directory).count
-
       Date.today.downto(Date.today.beginning_of_month) do |day|
         assert File.exist?("#{test_directory}/#{backup_filename(day)}")
       end

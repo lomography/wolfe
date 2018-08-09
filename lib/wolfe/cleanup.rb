@@ -97,7 +97,7 @@ module Wolfe
                                      day: date.strftime('%d'),
                                     hour: '*' }
 
-        select_file_for_deletion(keep_one, path, filename_day, filename_month: filename_month)
+        select_file_for_deletion(keep_one, path, filename_day, date, filename_month: filename_month)
       end
 
       def delete_yearly( path, filename, date, keep_one )
@@ -110,15 +110,15 @@ module Wolfe
                                      day: date.strftime('%d'),
                                     hour: '*' }
 
-        select_file_for_deletion(keep_one, path, filename_day, filename_year: filename_year)
+        select_file_for_deletion(keep_one, path, filename_day, date, filename_year: filename_year)
       end
 
-      def select_file_for_deletion(keep_one, path, filename_day, filename_month: nil, filename_year: nil)
+      def select_file_for_deletion(keep_one, path, filename_day, date, filename_month: nil, filename_year: nil)
         if keep_one
-          select_file( full_path( path, filename_month ), delete_path: full_path( path, filename_day ) ) if filename_month
-          select_file( full_path( path, filename_year ), delete_path: full_path( path, filename_day ) ) if filename_year
+          select_file(full_path(path, filename_month), delete_path: full_path(path, filename_day)) if filename_month
+          select_file(full_path(path, filename_year), delete_path: full_path(path, filename_day)) if filename_year
         else
-          select_file( delete_path: full_path( path, filename_day ) )
+          select_file(delete_path: full_path( path, filename_day))
         end
       end
 
@@ -128,9 +128,7 @@ module Wolfe
 
       def select_file(keep_path=nil, delete_path:)
         Dir.glob(delete_path).each do |f|
-          month_path = month_path(f)
-
-          if File.size(Dir.glob(month_path).sort.last) > 0
+          if File.size(Dir.glob(month_path(f)).sort.last) > 0
             keep_path ? delete_but_keep_one(f, keep_path) : delete_without_keeping_one(f)
           end
         end
@@ -143,7 +141,13 @@ module Wolfe
       end
 
       def delete_without_keeping_one(file)
-        delete(file)
+        next_file = file.dup
+        date = date_from_file(file)
+        next_file[52..61] = date.next.to_s
+
+        if File.size(Dir.glob(next_file).last) > 0
+          delete(file)
+        end
       end
 
       def delete(file)
@@ -156,6 +160,11 @@ module Wolfe
         file_splitted[-2] = "*"
         file_splitted[-1] = "*"
         file_splitted.join('-')
+      end
+
+      def date_from_file(file)
+        file_splitted = file.split('-')
+        file_splitted[-4..-2].join('.').to_date
       end
   end
 end
