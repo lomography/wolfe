@@ -122,7 +122,7 @@ module Wolfe
         end
       end
 
-      def full_path( path, filename )
+      def full_path(path, filename)
         File.expand_path(File.join(path, filename))
       end
 
@@ -166,7 +166,7 @@ module Wolfe
       def next_file_path(file_path)
         next_file = file_path.dup
         date = date_from_file(file_path)
-        next_file[52..61] = date.next.to_s
+        next_file[-13..-4] = date.next.to_s
         next_file
       end
   end

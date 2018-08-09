@@ -28,7 +28,7 @@ module Wolfe
 
     def test_configuration_must_have_valid_timespans
       assert_raises ArgumentError do
-        Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "5.days", "Dir.exist?('/tmp')" ) )
+        Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "5.days", "Dir.exist?('/tmp')"))
       end
     end
 
@@ -43,7 +43,7 @@ module Wolfe
 
       if ( Date.today - 15.days ).month != Date.today.month
         assert_equal 6, Dir.entries(test_directory).count
-        assert File.exist?("#{test_directory}/#{backup_filename( (Date.today - 15.days).end_of_month )}")
+        assert File.exist?("#{test_directory}/#{backup_filename((Date.today - 15.days).end_of_month )}")
       else
         assert_equal 5, Dir.entries(test_directory).count
       end
@@ -133,28 +133,28 @@ module Wolfe
 
     private
 
-      def create_not_empty_test_files_for_period start_date, end_date
+      def create_not_empty_test_files_for_period(start_date, end_date)
         start_date.downto(end_date) do |date|
           FileUtils.touch "#{test_directory}/#{backup_filename(date)}"
           File.open("#{test_directory}/#{backup_filename(date)}", "w") { |file| file.write("not empty") }
         end
       end
 
-      def create_empty_test_files_for_period start_date, end_date
+      def create_empty_test_files_for_period(start_date, end_date)
         start_date.downto(end_date) do |date|
           FileUtils.touch "#{test_directory}/#{backup_filename(date)}"
         end
       end
 
       def test_directory
-        File.join( File.expand_path(File.dirname(__FILE__)), '..', 'tmp' )
+        File.join( File.expand_path(File.dirname(__FILE__)), '..', 'tmp')
       end
 
-      def backup_filename date
+      def backup_filename(date)
         "test_backup-%04d-%02d-%02d-10" % [date.year, date.month, date.day]
       end
 
-      def configuration path, filename, day_timespan, month_timespan
+      def configuration(path, filename, day_timespan, month_timespan)
         {
           'test_backup' =>
             {
