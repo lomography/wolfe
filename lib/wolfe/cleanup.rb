@@ -51,13 +51,13 @@ module Wolfe
       #
 
       def cleanup( config )
-        daily_date = Date.today - eval( config['one_per_day_timespan'] )
+        daily_date = Date.today - eval(config['one_per_day_timespan'])
         monthly_date = set_monthly_date(config['one_per_month_timespan'])
         keep_one = !one_per_month_timespan_starts_with_zero?(config['one_per_month_timespan'])
 
         if File.directory?(config['path'])
-          clean_monthly( monthly_date, daily_date, config, keep_one )
-          clean_yearly( monthly_date, config, keep_one ) if keep_one
+          clean_monthly(monthly_date, daily_date, config, keep_one)
+          clean_yearly(monthly_date, config, keep_one) if keep_one
         else
           puts "Path '#{config['path']}' is not a directory."
         end
@@ -75,19 +75,19 @@ module Wolfe
         timespan.first.to_i == 0 ? true : false
       end
 
-      def clean_monthly( monthly_date, daily_date, config, keep_one )
-        monthly_date.upto( daily_date ) do |date|
-          delete_monthly( config['path'], config['filename'], date, keep_one )
+      def clean_monthly(monthly_date, daily_date, config, keep_one)
+        monthly_date.upto(daily_date) do |date|
+          delete_monthly(config['path'], config['filename'], date, keep_one)
         end
       end
 
-      def clean_yearly( monthly_date, config, keep_one )
-        @first_relevant_date.upto( monthly_date ) do |date|
-          delete_yearly( config['path'], config['filename'], date, keep_one )
+      def clean_yearly(monthly_date, config, keep_one)
+        @first_relevant_date.upto(monthly_date) do |date|
+          delete_yearly(config['path'], config['filename'], date, keep_one)
         end
       end
 
-      def delete_monthly( path, filename, date, keep_one )
+      def delete_monthly(path, filename, date, keep_one)
         filename_month = filename % { year: date.strftime('%Y'),
                                      month: date.strftime('%m'),
                                        day: '*',
@@ -100,7 +100,7 @@ module Wolfe
         select_file_for_deletion(keep_one, path, filename_day, date, filename_month: filename_month)
       end
 
-      def delete_yearly( path, filename, date, keep_one )
+      def delete_yearly(path, filename, date, keep_one)
         filename_year = filename % { year: date.strftime('%Y'),
                                     month: '*',
                                       day: '*',
@@ -145,7 +145,7 @@ module Wolfe
         date = date_from_file(file)
         next_file[52..61] = date.next.to_s
 
-        if next_file.present? && File.size(Dir.glob(next_file).last) > 0
+        if File.size(Dir.glob(next_file).last) > 0
           delete(file)
         end
       end
