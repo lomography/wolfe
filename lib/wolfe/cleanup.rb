@@ -145,7 +145,7 @@ module Wolfe
         date = date_from_file(file)
         next_file[52..61] = date.next.to_s
 
-        if File.size(Dir.glob(next_file).last) > 0
+        if next_file.present? && File.size(Dir.glob(next_file).last) > 0
           delete(file)
         end
       end
