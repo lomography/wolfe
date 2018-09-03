@@ -133,7 +133,11 @@ module Wolfe
       def select_file(keep_path=nil, delete_path:)
         Dir.glob(delete_path).each do |f|
           if File.size(Dir.glob(month_path(f)).sort.last) > 0
-            keep_path ? delete_but_keep_one(f, keep_path) : delete_without_keeping_one(f)
+            if keep_path
+              delete_but_keep_one(f, keep_path)
+            else
+              delete_without_keeping_one(f)
+            end
           end
         end
       end
