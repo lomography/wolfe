@@ -65,10 +65,13 @@ module Wolfe
       end
 
       def calculate_monthly_date_for_backup_to_keep(one_per_month_timespan)
-        if Date.today - eval(one_per_month_timespan) == Date.today
+        timespan_digit = one_per_month_timespan.split('.')[0].to_i
+        timespan_word = one_per_month_timespan.split('.')[1].to_sym
+
+        if Date.today - timespan_digit.send(timespan_word) == Date.today
           BACKUP_FIRST_CUTOFF_DATE
         else
-          Date.today - eval(one_per_month_timespan)
+          Date.today - timespan_digit.send(timespan_word)
         end
       end
 
