@@ -147,7 +147,7 @@ module Wolfe
       end
 
       def test_directory
-        File.join( File.expand_path(File.dirname(__FILE__)), '..', 'tmp')
+        File.join(File.expand_path(File.join(__dir__, 'tmp')))
       end
 
       def backup_filename(date)
