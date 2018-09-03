@@ -76,7 +76,7 @@ module Wolfe
       end
 
       def one_per_month_timespan_starts_with_zero?(timespan)
-        timespan.first.to_i == 0 ? true : false
+        timespan.first.to_i == 0
       end
 
       def clean_monthly(monthly_date, daily_date, config, keep_one)
