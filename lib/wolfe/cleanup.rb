@@ -101,7 +101,7 @@ module Wolfe
                                      day: date.strftime('%d'),
                                     hour: '*' }
 
-        select_file_for_deletion(keep_one, path, filename_day, date, filename_month: filename_month)
+        select_file_for_deletion(keep_one, path, filename_day, date, filename_month, nil)
       end
 
       def delete_yearly(path, filename, date, keep_one)
@@ -114,10 +114,10 @@ module Wolfe
                                      day: date.strftime('%d'),
                                     hour: '*' }
 
-        select_file_for_deletion(keep_one, path, filename_day, date, filename_year: filename_year)
+        select_file_for_deletion(keep_one, path, filename_day, date, nil, filename_year)
       end
 
-      def select_file_for_deletion(keep_one, path, filename_day, date, filename_month: nil, filename_year: nil)
+      def select_file_for_deletion(keep_one, path, filename_day, date, filename_month, filename_year)
         if keep_one
           select_file(full_path(path, filename_month), delete_path: full_path(path, filename_day)) if filename_month
           select_file(full_path(path, filename_year), delete_path: full_path(path, filename_day)) if filename_year
