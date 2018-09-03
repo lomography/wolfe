@@ -53,7 +53,7 @@ module Wolfe
 
       def cleanup( config )
         daily_date = Date.today - eval(config['one_per_day_timespan'])
-        monthly_date = set_monthly_date(config['one_per_month_timespan'])
+        monthly_date = calculate_monthly_date_for_backup_to_keep(config['one_per_month_timespan'])
         keep_one = !one_per_month_timespan_starts_with_zero?(config['one_per_month_timespan'])
 
         if File.directory?(config['path'])
@@ -64,7 +64,7 @@ module Wolfe
         end
       end
 
-      def set_monthly_date(one_per_month_timespan)
+      def calculate_monthly_date_for_backup_to_keep(one_per_month_timespan)
         if Date.today - eval(one_per_month_timespan) == Date.today
           BACKUP_FIRST_CUTOFF_DATE
         else
