@@ -1,6 +1,7 @@
 require "active_support"
 require "active_support/core_ext"
 require "fileutils"
+require "wolfe/timespan_from_configuration"
 
 module Wolfe
   class Cleanup
@@ -51,10 +52,10 @@ module Wolfe
       # cleanup
       #
 
-      def cleanup( config )
-        daily_date = Date.today - eval(config['one_per_day_timespan'])
-        monthly_date = calculate_monthly_date_for_backup_to_keep(config['one_per_month_timespan'])
-        keep_one = !one_per_month_timespan_starts_with_zero?(config['one_per_month_timespan'])
+      def cleanup(config)
+        daily_date = Date.today - TimespanFromConfiguration.new(config['one_per_day_timespan']).timespan
+        monthly_date = calculate_monthly_date(config['one_per_month_timespan'])
+        keep_one = TimespanFromConfiguration.new(config['one_per_month_timespan']).keep_one_backup?
 
         if File.directory?(config['path'])
           clean_monthly(monthly_date, daily_date, config, keep_one)
@@ -64,19 +65,14 @@ module Wolfe
         end
       end
 
-      def calculate_monthly_date_for_backup_to_keep(one_per_month_timespan)
-        timespan_digit = one_per_month_timespan.split('.')[0].to_i
-        timespan_word = one_per_month_timespan.split('.')[1].to_sym
+      def calculate_monthly_date(one_per_month_timespan)
+        timespan = TimespanFromConfiguration.new(one_per_month_timespan).timespan
 
-        if Date.today - timespan_digit.send(timespan_word) == Date.today
+        if Date.today - timespan == Date.today
           BACKUP_FIRST_CUTOFF_DATE
         else
-          Date.today - timespan_digit.send(timespan_word)
+          Date.today - timespan
         end
-      end
-
-      def one_per_month_timespan_starts_with_zero?(timespan)
-        timespan.first.to_i == 0
       end
 
       def clean_monthly(monthly_date, daily_date, config, keep_one)
