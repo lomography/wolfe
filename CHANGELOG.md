@@ -1,3 +1,11 @@
+## 1.2.0 (2018-09-05)
+
+Changes:
+
+	- modify gem not to clean backups if the last backup is empty
+	- modify gem to have the option of not keeping one backup
+	- improve readability
+
 ## 1.1.1 (2015-10-16)
 
 Changes:
