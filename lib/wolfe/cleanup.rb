@@ -1,10 +1,13 @@
 require "active_support"
 require "active_support/core_ext"
 require "fileutils"
+require "wolfe/timespan_from_configuration"
 
 module Wolfe
   class Cleanup
     attr_accessor :configuration
+
+    BACKUP_FIRST_CUTOFF_DATE = Date.today - 5.years
 
     def initialize(configuration)
       @configuration = configuration
@@ -49,32 +52,42 @@ module Wolfe
       # cleanup
       #
 
-      def cleanup( config )
-        daily_date = Date.today - eval( config['one_per_day_timespan'] )
-        monthly_date = Date.today - eval( config['one_per_month_timespan'] )
-        first_relevant_date = Date.today - 5.years
+      def cleanup(config)
+        daily_date = Date.today - TimespanFromConfiguration.new(config['one_per_day_timespan']).timespan
+        monthly_date = calculate_monthly_date(config['one_per_month_timespan'])
+        keep_one = TimespanFromConfiguration.new(config['one_per_month_timespan']).keep_one_backup?
 
         if File.directory?(config['path'])
-          clean_monthly( monthly_date, daily_date, config )
-          clean_yearly( first_relevant_date, monthly_date, config )
+          clean_monthly(monthly_date, daily_date, config, keep_one)
+          clean_yearly(monthly_date, config, keep_one) if keep_one
         else
           puts "Path '#{config['path']}' is not a directory."
         end
       end
 
-      def clean_monthly( monthly_date, daily_date, config )
-        monthly_date.upto( daily_date ) do |date|
-          delete_but_keep_one_per_month( config['path'], config['filename'], date )
+      def calculate_monthly_date(one_per_month_timespan)
+        timespan = TimespanFromConfiguration.new(one_per_month_timespan).timespan
+
+        if Date.today - timespan == Date.today
+          BACKUP_FIRST_CUTOFF_DATE
+        else
+          Date.today - timespan
         end
       end
 
-      def clean_yearly( first_relevant_date, monthly_date, config )
-        first_relevant_date.upto( monthly_date ) do |date|
-          delete_but_keep_one_per_year( config['path'], config['filename'], date )
+      def clean_monthly(monthly_date, daily_date, config, keep_one)
+        monthly_date.upto(daily_date) do |date|
+          delete_monthly(config['path'], config['filename'], date, keep_one)
         end
       end
 
-      def delete_but_keep_one_per_month( path, filename, date )
+      def clean_yearly(monthly_date, config, keep_one)
+        BACKUP_FIRST_CUTOFF_DATE.upto(monthly_date) do |date|
+          delete_yearly(config['path'], config['filename'], date, keep_one)
+        end
+      end
+
+      def delete_monthly(path, filename, date, keep_one)
         filename_month = filename % { year: date.strftime('%Y'),
                                      month: date.strftime('%m'),
                                        day: '*',
@@ -83,10 +96,11 @@ module Wolfe
                                    month: date.strftime('%m'),
                                      day: date.strftime('%d'),
                                     hour: '*' }
-        delete_but_keep_one( full_path( path, filename_month ), full_path( path, filename_day ) )
+
+        select_file_for_deletion(keep_one, path, filename_day, date, filename_month, nil)
       end
 
-      def delete_but_keep_one_per_year( path, filename, date )
+      def delete_yearly(path, filename, date, keep_one)
         filename_year = filename % { year: date.strftime('%Y'),
                                     month: '*',
                                       day: '*',
@@ -95,20 +109,69 @@ module Wolfe
                                    month: date.strftime('%m'),
                                      day: date.strftime('%d'),
                                     hour: '*' }
-        delete_but_keep_one( full_path( path, filename_year ), full_path( path, filename_day ) )
+
+        select_file_for_deletion(keep_one, path, filename_day, date, nil, filename_year)
       end
 
-      def full_path( path, filename )
+      def select_file_for_deletion(keep_one, path, filename_day, date, filename_month, filename_year)
+        if keep_one
+          select_file(full_path(path, filename_month), delete_path: full_path(path, filename_day)) if filename_month
+          select_file(full_path(path, filename_year), delete_path: full_path(path, filename_day)) if filename_year
+        else
+          select_file(delete_path: full_path( path, filename_day))
+        end
+      end
+
+      def full_path(path, filename)
         File.expand_path(File.join(path, filename))
       end
 
-      def delete_but_keep_one( keep_path, delete_path )
+      def select_file(keep_path=nil, delete_path:)
         Dir.glob(delete_path).each do |f|
-          if Dir.glob(keep_path).count > 1
-            puts "Delete: #{f}"
-            FileUtils.rm(f)
+          if File.size(Dir.glob(month_path(f)).sort.last) > 0
+            if keep_path
+              delete_but_keep_one(f, keep_path)
+            else
+              delete_without_keeping_one(f)
+            end
           end
         end
+      end
+
+      def delete_but_keep_one(file, keep_path)
+        if Dir.glob(keep_path).count > 1
+          delete(file)
+        end
+      end
+
+      def delete_without_keeping_one(file)
+        if File.size(Dir.glob(next_file_path(file)).last) > 0
+          delete(file)
+        end
+      end
+
+      def delete(file)
+        puts "Delete: #{file}"
+        FileUtils.rm(file)
+      end
+
+      def month_path(file)
+        file_splitted = file.split('-')
+        file_splitted[-2] = "*"
+        file_splitted[-1] = "*"
+        file_splitted.join('-')
+      end
+
+      def date_from_file(file)
+        file_splitted = file.split('-')
+        file_splitted[-4..-2].join('.').to_date
+      end
+
+      def next_file_path(file_path)
+        next_file = file_path.dup
+        date = date_from_file(file_path)
+        next_file[-13..-4] = date.next.to_s
+        next_file
       end
   end
 end
