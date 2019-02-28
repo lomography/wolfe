@@ -163,8 +163,7 @@ module Wolfe
       end
 
       def date_from_file(file)
-        file_splitted = file.split('-')
-        file_splitted[-4..-2].join('.').to_date
+        file.split(/[^\d]/).join.to_date
       end
 
       def next_file_path(file_path)
