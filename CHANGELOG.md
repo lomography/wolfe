@@ -1,3 +1,11 @@
+## 1.3.0 (2019-03-04)
+
+Changes:
+
+	- get date from file a more cleaner way
+	- fix a broken test
+	- update bundler
+
 ## 1.2.0 (2018-09-05)
 
 Changes:
