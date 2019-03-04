@@ -145,7 +145,7 @@ module Wolfe
       end
 
       def delete_without_keeping_one(file)
-        if File.size(Dir.glob(next_file_path(file)).last) > 0
+        if Dir.glob(next_file_path(file)).last.present? && File.size(Dir.glob(next_file_path(file)).last) > 0
           delete(file)
         end
       end
