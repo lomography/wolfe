@@ -1,3 +1,9 @@
+## 1.3.1 (2019-03-04)
+
+Changes:
+
+	- add guard in `delete_without_keeping_one` method, which checks if backup file for the next day exists before checking its size
+
 ## 1.3.0 (2019-03-04)
 
 Changes:
