@@ -1,3 +1,9 @@
+## 1.3.2 (2020-07-07)
+
+Changes:
+
+	- Gemspec: make sure we use `>= 12.3.3` version for `rake` gem dev dependency
+
 ## 1.3.1 (2019-03-04)
 
 Changes:
