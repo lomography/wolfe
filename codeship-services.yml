@@ -1,0 +1,8 @@
+wolfe:
+  build:
+    image: lomography/wolfe
+    dockerfile: Dockerfile
+    args:
+      RUBY_VERSION: '2.6.6'
+      BUNDLER_VERSION: '2.1.4'
+  cached: true
