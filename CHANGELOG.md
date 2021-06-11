@@ -1,3 +1,9 @@
+## 1.3.4 (2021-06-11)
+
+Changes:
+
+- CircleCI migration
+
 ## 1.3.3 (2020-12-01)
 
 Changes:
