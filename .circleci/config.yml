@@ -3,10 +3,10 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: lomography/wolfe:1.0
+      - image: lomography/wolfe:1.1
         environment:
           RAILS_ENV: test
-          RUBY_VERSION: 2.6.6
+          RUBY_VERSION: 2.7.3
           BUNDLER_VERSION: 2.1.4
     resource_class: small
     steps:
