@@ -54,7 +54,8 @@ module Wolfe
     end
 
     def test_start_should_correctly_delete_monthly_backups
-      create_not_empty_test_files_for_period(Date.today, 6.months.ago.to_date)
+      Timecop.freeze(2021, 06, 15)
+      create_not_empty_test_files_for_period(Date.today, 5.months.ago.to_date)
       cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "1.days", "4.months"))
       cleanup.start
 
@@ -63,6 +64,7 @@ module Wolfe
       assert File.exist?("#{test_directory}/#{backup_filename(1.month.ago.end_of_month.to_date)}")
       assert File.exist?("#{test_directory}/#{backup_filename(2.months.ago.end_of_month.to_date)}")
       assert File.exist?("#{test_directory}/#{backup_filename(3.months.ago.end_of_month.to_date)}")
+      Timecop.return
     end
 
     def test_start_should_delete_everything_but_the_backups_from_the_last_three_days
