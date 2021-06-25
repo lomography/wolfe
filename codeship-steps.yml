@@ -1,6 +1,0 @@
-- name: ci
-  type: parallel
-  steps:
-  - name: tests
-    service: wolfe
-    command: bundle exec rake
