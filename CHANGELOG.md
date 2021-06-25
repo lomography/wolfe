@@ -1,3 +1,9 @@
+## 1.3.5 (2021-06-25)
+
+Changes:
+
+- Remove Codeship references
+
 ## 1.3.4 (2021-06-16)
 
 Changes:
