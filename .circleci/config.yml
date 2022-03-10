@@ -6,7 +6,7 @@ jobs:
       - image: lomography/wolfe:1.1
         environment:
           RAILS_ENV: test
-          RUBY_VERSION: 2.7.3
+          RUBY_VERSION: 3.1.1
           BUNDLER_VERSION: 2.1.4
     resource_class: small
     steps:

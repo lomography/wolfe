@@ -1,3 +1,9 @@
+## 1.4.0 (2021-03-10)
+
+Changes:
+
+- Update ruby to 3.1.1
+
 ## 1.3.5 (2021-06-25)
 
 Changes:
@@ -9,7 +15,7 @@ Changes:
 Changes:
 
 - Bump Ruby to version `2.7.3`
-- Add `Timecop` gem for testing  
+- Add `Timecop` gem for testing
 - Fix cleanup test
 - CircleCI migration
 
