@@ -1,21 +1,43 @@
 version: 2.1
 
 jobs:
-  build:
+  test:
     docker:
-      - image: lomographydev/wolfe:1.0
+      - image: lomographydev/wolfe:latest
         auth:
           username: lomographydev
-          password: $DOCKERHUB_ACCESS_TOKEN
+          password: $DOCKER_HUB_PASSWORD
         environment:
           RAILS_ENV: test
-          RUBY_VERSION: 3.1.1
-          BUNDLER_VERSION: 2.1.4
     resource_class: small
     steps:
       - checkout
       - run:
           name: Run rails tests
           command: bundle exec rake
-
-
+  build-image:
+    docker:
+      - image: cimg/base:2024.02
+    resource_class: small
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build and push to Docker Hub
+          command: |
+            docker build -t $DOCKER_HUB_USERNAME/wolfe:latest .
+            echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_USERNAME" --password-stdin
+            docker image push --all-tags $DOCKER_HUB_USERNAME/wolfe
+workflows:
+  build:
+    jobs:
+      - test:
+          context: docker-hub
+      - build-image:
+          context: docker-hub
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - main
