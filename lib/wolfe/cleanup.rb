@@ -62,8 +62,8 @@ module Wolfe
         keep_one = TimespanFromConfiguration.new(config['one_per_month_timespan']).keep_one_backup?
 
         if File.directory?(config['path'])
-          clean_monthly(monthly_date, daily_date, config, keep_one)
           clean_yearly(monthly_date, config, keep_one) if keep_one
+          clean_monthly(monthly_date, daily_date, config, keep_one)
         else
           puts "Path '#{config['path']}' is not a directory."
         end
