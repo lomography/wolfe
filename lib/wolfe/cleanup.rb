@@ -7,6 +7,8 @@ module Wolfe
   class Cleanup
     attr_accessor :configuration
 
+    DATE_REGEX = /(\d{4})-(\d{2})-(\d{2})-(\d{2})/
+
     def initialize(configuration)
       @configuration = configuration
       validate_configuration
@@ -158,21 +160,19 @@ module Wolfe
       end
 
       def month_path(file)
-        file_splitted = file.split('-')
-        file_splitted[-2] = "*"
-        file_splitted[-1] = "*"
-        file_splitted.join('-')
+        dir, base = File.split(file)
+        File.join(dir, base.sub(/(\d{4}-\d{2})-\d{2}-\d{2}/, '\1-*-*'))
       end
 
       def date_from_file(file)
-        file.split(/[^\d]/).join.to_date
+        year, month, day = File.basename(file).match(DATE_REGEX).captures
+        Date.new(year.to_i, month.to_i, day.to_i)
       end
 
       def next_file_path(file_path)
-        next_file = file_path.dup
-        date = date_from_file(file_path)
-        next_file[-13..-4] = date.next.to_s
-        next_file
+        dir, base = File.split(file_path)
+        next_date = date_from_file(file_path).next.to_s
+        File.join(dir, base.sub(/\d{4}-\d{2}-\d{2}(?=-\d{2})/, next_date))
       end
   end
 end
