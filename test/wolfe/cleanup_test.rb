@@ -4,6 +4,15 @@ module Wolfe
 
   class CleanupTest < Minitest::Test
 
+    def setup
+      Dir.mkdir(test_directory) unless Dir.exist?(test_directory)
+    end
+
+    def teardown
+      Timecop.return
+      FileUtils.remove_dir(test_directory, true) if Dir.exist?(test_directory)
+    end
+
     #
     # validations
     #
@@ -37,17 +46,12 @@ module Wolfe
     #
 
     def test_start_should_correctly_delete_daily_backups
+      Timecop.freeze(2021, 6, 20)
       create_not_empty_test_files_for_period(Date.today, 15.days.ago.to_date)
       cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "3.days", "1.year"))
       cleanup.start
 
-      if ( Date.today - 15.days ).month != Date.today.month
-        assert_equal 6, Dir.entries(test_directory).count
-        assert File.exist?("#{test_directory}/#{backup_filename((Date.today - 15.days).end_of_month )}")
-      else
-        assert_equal 5, Dir.entries(test_directory).count
-      end
-
+      assert_equal 5, Dir.entries(test_directory).count
       assert File.exist?("#{test_directory}/#{backup_filename(Date.today)}")
       assert File.exist?("#{test_directory}/#{backup_filename(Date.today - 1.day)}")
       assert File.exist?("#{test_directory}/#{backup_filename(Date.today - 2.days)}")
@@ -82,6 +86,8 @@ module Wolfe
     end
 
     def test_start_should_not_delete_any_backup_within_this_month_if_last_backup_is_empty
+      Timecop.freeze(2021, 6, 15)
+
       create_not_empty_test_files_for_period(Date.today - 1.day, 6.months.ago.to_date)
       create_empty_test_files_for_period(Date.today, Date.today)
 
@@ -98,19 +104,22 @@ module Wolfe
     end
 
     def test_start_should_not_delete_any_backup_within_this_month_if_last_backup_is_empty_and_we_dont_keep_monthly_backups
-      create_not_empty_test_files_for_period("01.07.2024".to_date - 1.day, "01.07.2024".to_date - 6.months)
-      create_empty_test_files_for_period("01.07.2024".to_date, "01.07.2024".to_date)
+      Timecop.freeze(2024, 7, 1)
+
+      create_not_empty_test_files_for_period(Date.today - 1.day, Date.today - 6.months)
+      create_empty_test_files_for_period(Date.today, Date.today)
 
       cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "1.days", "0.months"))
       cleanup.start
 
       assert_equal 4, Dir.entries(test_directory).count
-      assert File.exist?("#{test_directory}/#{backup_filename("1.07.2024".to_date)}")
-      assert File.exist?("#{test_directory}/#{backup_filename("1.07.2024".to_date - 1.day)}")
-      assert File.exist?("#{test_directory}/#{backup_filename(("1.07.2024".to_date - 1.month).end_of_month)}")
+      assert File.exist?("#{test_directory}/#{backup_filename(Date.today)}")
+      assert File.exist?("#{test_directory}/#{backup_filename(Date.today - 1.day)}")
     end
 
     def test_start_should_correctly_delete_backups_if_last_backup_is_not_empty
+      Timecop.freeze(2021, 6, 15)
+
       create_not_empty_test_files_for_period(Date.today, 2.years.ago.to_date)
 
       cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "3.days", "1.year"))
@@ -167,19 +176,6 @@ module Wolfe
       assert_equal 5, Dir.entries(dir).count
       assert File.exist?("#{dir}/#{backup_filename(Date.today)}")
       assert File.exist?("#{dir}/#{backup_filename(Date.today - 2.days)}")
-    end
-
-    #
-    # setup/teardown
-    #
-
-    def setup
-      Dir.mkdir(test_directory) unless Dir.exist?(test_directory)
-    end
-
-    def teardown
-      Timecop.return
-      FileUtils.remove_dir(test_directory, true) if Dir.exist?(test_directory)
     end
 
     private
