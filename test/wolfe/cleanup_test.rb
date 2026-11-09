@@ -64,10 +64,11 @@ module Wolfe
       assert File.exist?("#{test_directory}/#{backup_filename(1.month.ago.end_of_month.to_date)}")
       assert File.exist?("#{test_directory}/#{backup_filename(2.months.ago.end_of_month.to_date)}")
       assert File.exist?("#{test_directory}/#{backup_filename(3.months.ago.end_of_month.to_date)}")
-      Timecop.return
     end
 
     def test_start_should_delete_everything_but_the_backups_from_the_last_three_days
+      Timecop.freeze(2021, 6, 15)
+
       create_not_empty_test_files_for_period(Date.today, 6.months.ago.to_date)
       cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "3.days", "0.days"))
       cleanup.start
@@ -130,6 +131,7 @@ module Wolfe
     end
 
     def teardown
+      Timecop.return
       FileUtils.remove_dir(test_directory, true) if Dir.exist?(test_directory)
     end
 
