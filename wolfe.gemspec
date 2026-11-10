@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Michael Emhofer", "Martin Sereinig"]
   spec.email         = ["dev@lomography.com"]
 
-  spec.required_ruby_version = ">= 4.0"
+  spec.required_ruby_version = ">= 3.3"
 
   spec.homepage = "https://github.com/lomography/wolfe"
   spec.license = "MIT"
