@@ -7,8 +7,6 @@ module Wolfe
   class Cleanup
     attr_accessor :configuration
 
-    BACKUP_FIRST_CUTOFF_DATE = Date.today - 5.years
-
     def initialize(configuration)
       @configuration = configuration
       validate_configuration
@@ -52,6 +50,10 @@ module Wolfe
       # cleanup
       #
 
+      def backup_first_cutoff_date
+        Date.today - 5.years
+      end
+
       def cleanup(config)
         daily_date = Date.today - TimespanFromConfiguration.new(config['one_per_day_timespan']).timespan
         monthly_date = calculate_monthly_date(config['one_per_month_timespan'])
@@ -69,7 +71,7 @@ module Wolfe
         timespan = TimespanFromConfiguration.new(one_per_month_timespan).timespan
 
         if Date.today - timespan == Date.today
-          BACKUP_FIRST_CUTOFF_DATE
+          backup_first_cutoff_date
         else
           Date.today - timespan
         end
@@ -82,7 +84,7 @@ module Wolfe
       end
 
       def clean_yearly(monthly_date, config, keep_one)
-        BACKUP_FIRST_CUTOFF_DATE.upto(monthly_date) do |date|
+        backup_first_cutoff_date.upto(monthly_date) do |date|
           delete_yearly(config['path'], config['filename'], date, keep_one)
         end
       end
