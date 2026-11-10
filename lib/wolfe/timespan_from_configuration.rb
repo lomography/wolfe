@@ -7,7 +7,7 @@ module Wolfe
 
       @duration = Integer(config['duration'])
       @unit = config['unit']
-      @unit = (@unit.to_s << 's').to_sym unless @unit.to_s.end_with? 's'
+      @unit = "#{@unit}s".to_sym unless @unit.to_s.end_with?('s')
 
       raise ArgumentError.new("Invalid time unit #{config['unit'].inspect}, expected one of #{SUPPORTED_TIME_UNITS.join(', ')}") unless supported_time_unit?
     end
