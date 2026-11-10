@@ -6,6 +6,7 @@ jobs:
       - image: ruby:4.0
         environment:
           BUNDLE_FROZEN: "true"
+          BUNDLE_WITHOUT: "development"
     resource_class: small
     steps:
       - checkout
