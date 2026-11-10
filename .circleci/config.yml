@@ -10,12 +10,20 @@ jobs:
         environment:
           BUNDLE_FROZEN: "true"
           BUNDLE_WITHOUT: "development"
+          BUNDLE_PATH: vendor/bundle
     resource_class: small
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - gems-ruby<< parameters.ruby >>-{{ checksum "Gemfile.lock" }}
       - run:
           name: Install dependencies
           command: bundle install
+      - save_cache:
+          key: gems-ruby<< parameters.ruby >>-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
       - run:
           name: Run tests
           command: bundle exec rake test
