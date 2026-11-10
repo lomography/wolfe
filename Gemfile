@@ -1,4 +1,15 @@
-source 'https://rubygems.org'
+# Gemfile
+source "https://rubygems.org"
 
-# Specify your gem's dependencies in wolfe.gemspec
 gemspec
+
+gem "rake", ">= 13.0"
+
+group :test do
+  gem "minitest", ">= 5.0"
+  gem "timecop"
+end
+
+group :development do
+  gem "debug"
+end
