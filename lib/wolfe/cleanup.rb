@@ -45,7 +45,8 @@ module Wolfe
       end
 
       def timespan_regex
-        /^\d+\.(days?|weeks?|months?|years?)$/
+        units = TimespanFromConfiguration::SUPPORTED_TIME_UNITS.map { |unit| "#{unit.chomp('s')}s?" }.join("|")
+        /\A\d+\.(#{units})\z/
       end
 
       #

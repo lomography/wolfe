@@ -41,6 +41,12 @@ module Wolfe
       end
     end
 
+    def test_configuration_must_reject_timespans_with_trailing_content
+      assert_raises ArgumentError do
+        Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "3.days\nrm -rf", "1.year"))
+      end
+    end
+
     #
     # actual cleanup
     #
@@ -133,6 +139,17 @@ module Wolfe
       # the month straddling the monthly cutoff keeps its last backup
       assert File.exist?("#{test_directory}/#{backup_filename(12.months.ago.end_of_month.to_date)}")
       assert File.exist?("#{test_directory}/#{backup_filename(2.years.ago.end_of_year.to_date)}")
+    end
+
+    def test_start_should_support_weeks
+      Timecop.freeze(2021, 6, 20)
+      create_not_empty_test_files_for_period(Date.today, 19.days.ago.to_date)
+      cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "2.weeks", "1.year"))
+      cleanup.start
+
+      assert_equal 16, Dir.entries(test_directory).count
+      assert File.exist?("#{test_directory}/#{backup_filename(Date.today - 13.days)}")
+      refute File.exist?("#{test_directory}/#{backup_filename(Date.today - 14.days)}")
     end
 
     #
