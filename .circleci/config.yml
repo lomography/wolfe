@@ -4,6 +4,8 @@ jobs:
   test:
     docker:
       - image: ruby:4.0
+        environment:
+          BUNDLE_FROZEN: "true"
     resource_class: small
     steps:
       - checkout
