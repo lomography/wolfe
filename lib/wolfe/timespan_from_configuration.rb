@@ -1,6 +1,6 @@
 module Wolfe
   class TimespanFromConfiguration
-    SUPPORTED_TIME_UNITS = %w(hours days months years).freeze
+    SUPPORTED_TIME_UNITS = %w(days weeks months years).freeze
 
     def initialize(config)
       config = split_duration_and_unit(config)
