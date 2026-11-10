@@ -123,6 +123,49 @@ module Wolfe
     end
 
     #
+    # suffixed filenames and digits in paths
+    #
+
+    def test_start_should_delete_suffixed_backups_without_monthly_backups
+      Timecop.freeze(2021, 6, 15)
+      create_not_empty_test_files_for_period(Date.today, 2.months.ago.to_date, suffix: ".age")
+      cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}.age", "3.days", "0.months"))
+      cleanup.start
+
+      assert_equal 5, Dir.entries(test_directory).count
+      assert File.exist?("#{test_directory}/#{backup_filename(Date.today, suffix: '.age')}")
+      assert File.exist?("#{test_directory}/#{backup_filename(Date.today - 1.day, suffix: '.age')}")
+      assert File.exist?("#{test_directory}/#{backup_filename(Date.today - 2.days, suffix: '.age')}")
+    end
+
+    def test_start_should_delete_suffixed_backups_when_keeping_monthly_backups
+      Timecop.freeze(2021, 6, 15)
+      create_not_empty_test_files_for_period(Date.today, 2.months.ago.to_date, suffix: ".age")
+      cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}.age", "3.days", "1.year"))
+      cleanup.start
+
+      assert_equal 7, Dir.entries(test_directory).count
+      assert File.exist?("#{test_directory}/#{backup_filename(Date.today, suffix: '.age')}")
+      assert File.exist?("#{test_directory}/#{backup_filename(Date.today - 2.days, suffix: '.age')}")
+      refute File.exist?("#{test_directory}/#{backup_filename(Date.today - 10.days, suffix: '.age')}")
+      assert File.exist?("#{test_directory}/#{backup_filename(1.month.ago.end_of_month.to_date, suffix: '.age')}")
+      assert File.exist?("#{test_directory}/#{backup_filename(2.months.ago.end_of_month.to_date, suffix: '.age')}")
+    end
+
+    def test_start_should_ignore_digits_in_the_path
+      Timecop.freeze(2021, 6, 15)
+      dir = File.join(test_directory, "app2-docker")
+      Dir.mkdir(dir)
+      create_not_empty_test_files_for_period(Date.today, 10.days.ago.to_date, dir: dir)
+      cleanup = Cleanup.new(configuration(dir, "test_backup-%{year}-%{month}-%{day}-%{hour}", "3.days", "0.months"))
+      cleanup.start
+
+      assert_equal 5, Dir.entries(dir).count
+      assert File.exist?("#{dir}/#{backup_filename(Date.today)}")
+      assert File.exist?("#{dir}/#{backup_filename(Date.today - 2.days)}")
+    end
+
+    #
     # setup/teardown
     #
 
@@ -137,16 +180,15 @@ module Wolfe
 
     private
 
-      def create_not_empty_test_files_for_period(start_date, end_date)
+      def create_not_empty_test_files_for_period(start_date, end_date, suffix: "", dir: test_directory)
         start_date.downto(end_date) do |date|
-          FileUtils.touch "#{test_directory}/#{backup_filename(date)}"
-          File.open("#{test_directory}/#{backup_filename(date)}", "w") { |file| file.write("not empty") }
+          File.write("#{dir}/#{backup_filename(date, suffix: suffix)}", "not empty")
         end
       end
 
-      def create_empty_test_files_for_period(start_date, end_date)
+      def create_empty_test_files_for_period(start_date, end_date, suffix: "", dir: test_directory)
         start_date.downto(end_date) do |date|
-          FileUtils.touch "#{test_directory}/#{backup_filename(date)}"
+          FileUtils.touch "#{dir}/#{backup_filename(date, suffix: suffix)}"
         end
       end
 
@@ -154,8 +196,8 @@ module Wolfe
         File.join(File.expand_path(File.join(__dir__, 'tmp')))
       end
 
-      def backup_filename(date)
-        "test_backup-%04d-%02d-%02d-10" % [date.year, date.month, date.day]
+      def backup_filename(date, suffix: "")
+        "test_backup-%04d-%02d-%02d-10%s" % [date.year, date.month, date.day, suffix]
       end
 
       def configuration(path, filename, day_timespan, month_timespan)
