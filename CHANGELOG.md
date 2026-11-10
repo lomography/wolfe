@@ -1,3 +1,22 @@
+## 1.5.0 (2026-11-10)
+
+Versions 1.3.2–1.4.0 were never published to RubyGems; this is the first release since 1.3.1.
+
+Fixes:
+
+- Filenames with a suffix after the date (e.g. `.tar.gz`, `.age`) are now cleaned up correctly. Previously, with `one_per_month_timespan: 0.months`, such files were never deleted.
+- Digits elsewhere in the backup path (e.g. `app2-docker`) no longer affect the parsed backup date.
+- The month at the edge of the monthly timespan now keeps its latest backup. Previously it lost all of its backups.
+- The 5-year lookback is computed on each run instead of once at load time.
+- Configuration validation and timespan parsing now accept the same units: days, weeks, months, years. `2.weeks` used to pass validation and then fail; `hours` is no longer accepted. Timespans with extra content on another line are rejected.
+
+Changes:
+
+- Requires Ruby 3.3 or newer; tested on Ruby 3.3, 3.4 and 4.0.
+- Requires ActiveSupport 8.0 or newer and Thor 1.3 or newer.
+- With monthly retention enabled, cleanup keeps one more backup than before (the edge month's latest).
+- The published gem now includes only `lib/`, `exe/`, README, changelog and license.
+
 ## 1.4.0 (2022-03-10)
 
 Changes:
