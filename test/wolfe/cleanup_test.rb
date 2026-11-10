@@ -59,11 +59,13 @@ module Wolfe
       cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "1.days", "4.months"))
       cleanup.start
 
-      assert_equal 6, Dir.entries(test_directory).count
+      assert_equal 7, Dir.entries(test_directory).count
       assert File.exist?("#{test_directory}/#{backup_filename(Date.today)}")
       assert File.exist?("#{test_directory}/#{backup_filename(1.month.ago.end_of_month.to_date)}")
       assert File.exist?("#{test_directory}/#{backup_filename(2.months.ago.end_of_month.to_date)}")
       assert File.exist?("#{test_directory}/#{backup_filename(3.months.ago.end_of_month.to_date)}")
+      # the month straddling the monthly cutoff keeps its last backup
+      assert File.exist?("#{test_directory}/#{backup_filename(4.months.ago.end_of_month.to_date)}")
     end
 
     def test_start_should_delete_everything_but_the_backups_from_the_last_three_days
@@ -114,11 +116,13 @@ module Wolfe
       cleanup = Cleanup.new(configuration(test_directory, "test_backup-%{year}-%{month}-%{day}-%{hour}", "3.days", "1.year"))
       cleanup.start
 
-      assert_equal 17, Dir.entries(test_directory).count
+      assert_equal 18, Dir.entries(test_directory).count
       assert File.exist?("#{test_directory}/#{backup_filename(Date.today)}")
       assert File.exist?("#{test_directory}/#{backup_filename(Date.today - 1.day)}")
       assert File.exist?("#{test_directory}/#{backup_filename(Date.today - 2.days)}")
       assert File.exist?("#{test_directory}/#{backup_filename(11.months.ago.end_of_month.to_date)}")
+      # the month straddling the monthly cutoff keeps its last backup
+      assert File.exist?("#{test_directory}/#{backup_filename(12.months.ago.end_of_month.to_date)}")
       assert File.exist?("#{test_directory}/#{backup_filename(2.years.ago.end_of_year.to_date)}")
     end
 
